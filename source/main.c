@@ -7,50 +7,49 @@
 */
 
 #include <stdio.h>
+#include <stdint.h>
 
-#define OPCODE_ADD 69
-#define OPCODE_SUB 420
+#define STACK_SIZE 1024
 
 typedef struct
 {
-     int a, b, y;
-     int opcode;
-     unsigned char carry, zero, negative;
-} alu_t;
+    uint32_t stack[STACK_SIZE]; 
+    uint32_t sp;
+} vm_t;
 
-alu_t alu;
-
-void alu_execute()
+void print_vm(vm_t vm)
 {
-     switch (alu.opcode)
-     {
-     case OPCODE_ADD:
-	  alu.y = alu.a + alu.b;
-	  alu.zero = alu.y == 0;
-	  alu.negative = alu.y < 0;
-	  break;
-     case OPCODE_SUB:
-	  alu.y = alu.a - alu.b;
-	  alu.zero = alu.y == 0;
-	  alu.negative = alu.y < 0;
-	  break;
-     }
+    for (int i = 0; i < vm.sp; i++)
+    {
+        printf("%2x ", vm.stack[i]);
+    }
+    
+    printf("\n");
 }
 
-void print_alu()
+void vm_push(vm_t *vm, uint32_t value)
 {
-     printf("a=%d b=%d y=%d\n", alu.a, alu.b, alu.y);
-     printf("zero=%d\tnegative=%d\n", alu.zero, alu.negative);
+    vm->stack[vm->sp] = value;
+    vm->sp++;
+}
+
+void vm_pop(vm_t *vm)
+{
+    if (vm->sp > 0)
+    {
+        vm->sp--;
+    }
 }
 
 int main(void)
 {
-     scanf("%d", &alu.opcode);
-     scanf("%d", &alu.a);
-     scanf("%d", &alu.b);
-     
-     alu_execute();
-     print_alu();
-     
-     return 0;
+    vm_t vm;
+    print_vm(vm);
+    vm_push(&vm, 0x69);
+    print_vm(vm);
+    vm_push(&vm, 0x69);
+    print_vm(vm);
+    vm_pop(&vm);
+    print_vm(vm);
+    return 0;
 }
